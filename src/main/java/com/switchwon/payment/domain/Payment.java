@@ -1,16 +1,19 @@
-package com.switchwon.order.domain;
+package com.switchwon.payment.domain;
 
-import com.switchwon.payment.domain.CurrencyCode;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "orders")
 @Getter
-public class Order {
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,9 +23,10 @@ public class Order {
     private Double totalAmount;
     private Double fees;
     private CurrencyCode currency;
-    private OrderStatus status;
+    private PaymentStatus status;
+    private Instant approvedAt;
 
-    public Order(String merchantId, Double amount, Double totalAmount, Double fees, CurrencyCode currency) {
+    public Payment(String merchantId, Double amount, Double totalAmount, Double fees, CurrencyCode currency) {
         this.merchantId = merchantId;
         this.amount = amount;
         this.totalAmount = totalAmount;
@@ -30,14 +34,19 @@ public class Order {
         this.currency = currency;
     }
 
-    public static Order of(String merchantId, Double amount, CurrencyCode currency) {
+    public static Payment of(String merchantId, Double amount, CurrencyCode currency) {
         double feeRate = 0.03;
         double fee = currency.floorToDecimal(amount * feeRate);
         double totalAmount = currency.floorToDecimal(amount + fee);
-        return new Order(merchantId, amount, totalAmount, fee, currency);
+        return new Payment(merchantId, amount, totalAmount, fee, currency);
     }
 
     public void toReady() {
-        this.status = OrderStatus.READY;
+        this.status = PaymentStatus.READY;
+    }
+
+    public void toApproved() {
+        this.status = PaymentStatus.APPROVED;
+        this.approvedAt = Instant.now();
     }
 }

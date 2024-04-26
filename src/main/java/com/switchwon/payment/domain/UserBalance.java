@@ -1,5 +1,6 @@
 package com.switchwon.payment.domain;
 
+import com.switchwon.payment.exception.NotEnoughBalanceException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,12 +17,23 @@ public class UserBalance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userId;
-    private double balance;
+    private Double balance;
     private CurrencyCode currency;
 
     public UserBalance(String userId, double balance, CurrencyCode currency) {
         this.userId = userId;
         this.balance = balance;
         this.currency = currency;
+    }
+
+    public void useBalance(double usedAmount) {
+        if (this.balance < usedAmount) {
+            throw new NotEnoughBalanceException();
+        }
+        this.balance -= usedAmount;
+    }
+
+    public void charge(double chargeAmount) {
+        this.balance += chargeAmount;
     }
 }

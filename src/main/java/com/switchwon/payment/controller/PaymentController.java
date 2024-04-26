@@ -1,8 +1,6 @@
 package com.switchwon.payment.controller;
 
-import com.switchwon.order.dto.OrderEstimateRequest;
-import com.switchwon.order.dto.OrderEstimateResponse;
-import com.switchwon.payment.dto.BalanceResponse;
+import com.switchwon.payment.dto.*;
 import com.switchwon.payment.service.PaymentService;
 import com.switchwon.payment.service.UserBalanceService;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,14 @@ public class PaymentController {
     }
 
     @PostMapping("/api/payment/estimate")
-    public ResponseEntity<OrderEstimateResponse> estimateOrder(@RequestBody OrderEstimateRequest request) {
-        OrderEstimateResponse response = paymentService.estimate(request);
+    public ResponseEntity<PaymentEstimateResponse> estimateOrder(@RequestBody PaymentEstimateRequest request) {
+        PaymentEstimateResponse response = paymentService.estimate(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/payment/approval")
+    public ResponseEntity<PaymentApprovalResponse> approveOrder(@RequestBody PaymentApprovalRequest request) {
+        PaymentApprovalResponse response = paymentService.approval(request);
         return ResponseEntity.ok(response);
     }
 }
