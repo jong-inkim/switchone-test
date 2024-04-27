@@ -5,7 +5,7 @@ import com.switchwon.payment.domain.UserBalance;
 
 public record BalanceResponse(String userId, double balance, CurrencyCode currency) {
 
-    public static BalanceResponse from(UserBalance member) {
-        return new BalanceResponse(member.getUserId(), member.getBalance(), member.getCurrency());
+    public static BalanceResponse from(UserBalance userBalance) {
+        return new BalanceResponse(userBalance.getUser().getUserId(), userBalance.getBalance(), userBalance.getCurrency());
     }
 }

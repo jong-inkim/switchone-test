@@ -7,8 +7,11 @@ import com.switchwon.payment.dto.PaymentDetailRequest;
 import com.switchwon.payment.repository.PaymentDetailRepository;
 import com.switchwon.payment.repository.UserBalanceRepository;
 import com.switchwon.payment.service.UserBalanceService;
+import com.switchwon.user.domain.User;
+import com.switchwon.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,16 +31,28 @@ public class UserBalanceServiceTest {
     @Autowired
     PaymentDetailRepository paymentDetailRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User testUser;
+
+    @BeforeEach
+    void setUp() {
+        testUser = userRepository.save(new User("test1"));
+    }
+
     @AfterEach
     void tearDown() {
         userBalanceRepository.deleteAll();
+        paymentDetailRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     void 잔액_조회() {
-        userBalanceRepository.save(new UserBalance("test3", 1000.00, CurrencyCode.USD));
+        userBalanceRepository.save(new UserBalance(testUser, 1000.00, CurrencyCode.USD));
 
-        String userId = "test3";
+        String userId = "test1";
 
         BalanceResponse balanceResponse = userBalanceService.getBalanceByUserId(userId);
 
@@ -47,7 +62,7 @@ public class UserBalanceServiceTest {
 
     @Test
     void 잔액_조회_유저아이디없을때() {
-        userBalanceRepository.save(new UserBalance("test2", 1000.00, CurrencyCode.USD));
+        userBalanceRepository.save(new UserBalance(testUser, 1000.00, CurrencyCode.USD));
 
         String userId = "test3";
 
@@ -57,13 +72,13 @@ public class UserBalanceServiceTest {
     @Test
     void 잔액_충전() {
         String userId = "test1";
-        userBalanceRepository.save(new UserBalance("test1", 1000.00, CurrencyCode.USD));
+        userBalanceRepository.save(new UserBalance(testUser, 1000.00, CurrencyCode.USD));
 
         double chargeAmount = 500.00;
         PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-1234-1234-1234", "12/24", "123");
         userBalanceService.charge(chargeAmount, userId, paymentDetailRequest);
 
-        UserBalance userBalance = userBalanceRepository.findByUserId(userId).get();
+        UserBalance userBalance = userBalanceRepository.findByUserId(testUser.getId()).get();
         assertThat(userBalance.getBalance()).isEqualTo(1500.00);
     }
 

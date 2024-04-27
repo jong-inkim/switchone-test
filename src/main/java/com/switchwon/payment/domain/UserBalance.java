@@ -1,10 +1,8 @@
 package com.switchwon.payment.domain;
 
 import com.switchwon.payment.exception.NotEnoughBalanceException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.switchwon.user.domain.User;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,12 +14,16 @@ public class UserBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String userId;
     private Double balance;
+    @Enumerated(EnumType.STRING)
     private CurrencyCode currency;
 
-    public UserBalance(String userId, double balance, CurrencyCode currency) {
-        this.userId = userId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public UserBalance(User user, double balance, CurrencyCode currency) {
+        this.user = user;
         this.balance = balance;
         this.currency = currency;
     }

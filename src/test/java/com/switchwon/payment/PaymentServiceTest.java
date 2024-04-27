@@ -4,12 +4,15 @@ import com.switchwon.payment.domain.Payment;
 import com.switchwon.payment.domain.PaymentStatus;
 import com.switchwon.payment.domain.UserBalance;
 import com.switchwon.payment.exception.DoNotMatchedAmountException;
+import com.switchwon.payment.repository.PaymentDetailRepository;
 import com.switchwon.payment.repository.PaymentRepository;
 import com.switchwon.payment.domain.CurrencyCode;
 import com.switchwon.payment.dto.*;
 import com.switchwon.payment.exception.DupliatedMerchantIdException;
 import com.switchwon.payment.repository.UserBalanceRepository;
 import com.switchwon.payment.service.PaymentService;
+import com.switchwon.user.domain.User;
+import com.switchwon.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,17 +34,28 @@ public class PaymentServiceTest {
     @Autowired
     UserBalanceRepository userBalanceRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    private PaymentDetailRepository paymentDetailRepository;
+
     @BeforeEach
     void setUp() {
-        userBalanceRepository.save(new UserBalance("test11", 150, CurrencyCode.USD));
-        userBalanceRepository.save(new UserBalance("test22", 100, CurrencyCode.USD));
-        userBalanceRepository.save(new UserBalance("test33", 170, CurrencyCode.USD));
+        User testUser1 = userRepository.save(new User("test1"));
+        User testUser2 = userRepository.save(new User("test2"));
+        User testUser3 = userRepository.save(new User("test3"));
+        userBalanceRepository.save(new UserBalance(testUser1, 150, CurrencyCode.USD));
+        userBalanceRepository.save(new UserBalance(testUser2, 100, CurrencyCode.USD));
+        userBalanceRepository.save(new UserBalance(testUser3, 170, CurrencyCode.USD));
     }
 
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAll();
+        paymentDetailRepository.deleteAll();
         userBalanceRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -75,14 +89,18 @@ public class PaymentServiceTest {
 
     @Test
     void 결제_승인_요청_balance가_남는경우() {
-        paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD));
-
-        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
-        String testId = "test11";
+        String testId = "test1";
         String merchantId = "merchantId22";
         double amount = 150.00;
         CurrencyCode currency = CurrencyCode.USD;
         String creditCard = "creditCard";
+
+        User testUser = getUser(testId);
+        paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD, testUser));
+
+        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
+
+
         PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
 
         PaymentApprovalResponse response = paymentService.approval(request);
@@ -100,16 +118,23 @@ public class PaymentServiceTest {
         assertThat(payment.getFees()).isEqualTo(4.50);
     }
 
+    private User getUser(String userId) {
+        return userRepository.findByUserId(userId).get();
+    }
+
     @Test
     void 결제_승인_요청_balance가_적은경우() {
-        paymentRepository.save(Payment.of("merchantId11", 150.00, CurrencyCode.USD));
-
-        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
-        String testId = "test11";
+        String testId = "test1";
         String merchantId = "merchantId11";
         double amount = 150.00;
         CurrencyCode currency = CurrencyCode.USD;
         String creditCard = "creditCard";
+
+        User testUser = getUser(testId);
+        paymentRepository.save(Payment.of("merchantId11", 150.00, CurrencyCode.USD, testUser));
+
+        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
+
         PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
 
         PaymentApprovalResponse response = paymentService.approval(request);
@@ -129,14 +154,17 @@ public class PaymentServiceTest {
 
     @Test
     void 결제_승인_금액검증실패() {
-        paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD));
-
-        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
-        String testId = "test11";
+        String testId = "test1";
         String merchantId = "merchantId22";
         double amount = 100.00;
         CurrencyCode currency = CurrencyCode.USD;
         String creditCard = "creditCard";
+
+        User testUser = getUser(testId);
+        paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD, testUser));
+
+        PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
+
         PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
 
         assertThatThrownBy(() -> paymentService.approval(request))

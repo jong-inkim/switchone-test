@@ -9,6 +9,8 @@ import com.switchwon.payment.dto.PaymentEstimateRequest;
 import com.switchwon.payment.repository.PaymentDetailRepository;
 import com.switchwon.payment.repository.PaymentRepository;
 import com.switchwon.payment.repository.UserBalanceRepository;
+import com.switchwon.user.domain.User;
+import com.switchwon.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,16 +43,21 @@ public class PaymentControllerTest {
     @Autowired
     PaymentDetailRepository paymentDetailRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @AfterEach
     void tearDown() {
         userBalanceRepository.deleteAll();
         paymentRepository.deleteAll();
         paymentDetailRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     void 잔액_조회_API() throws Exception {
-        userBalanceRepository.save(new UserBalance("test1", 1000.00, CurrencyCode.USD));
+        User testUser = userRepository.save(new User("test1"));
+        userBalanceRepository.save(new UserBalance(testUser, 1000.00, CurrencyCode.USD));
 
         String userId = "test1";
 
@@ -62,6 +69,8 @@ public class PaymentControllerTest {
 
     @Test
     void 결제_예상_조회() throws Exception {
+        User testUser = userRepository.save(new User("test2"));
+        userBalanceRepository.save(new UserBalance(testUser, 1000.00, CurrencyCode.USD));
         PaymentEstimateRequest request = new PaymentEstimateRequest(150, CurrencyCode.USD, "merchantId12", "test2");
         String body = objectMapper.writeValueAsString(request);
 
@@ -77,10 +86,9 @@ public class PaymentControllerTest {
 
     @Test
     void 결제_승인_요청() throws Exception {
-        userBalanceRepository.save(new UserBalance("test1", 1000.00, CurrencyCode.USD));
         결제_예상_조회();
         PaymentDetailRequest paymentDetails = new PaymentDetailRequest("1234-1234-1234-1234", "11/24", "123");
-        PaymentApprovalRequest request = new PaymentApprovalRequest("test1", 150.00, CurrencyCode.USD, "merchantId12", "creditCard", paymentDetails);
+        PaymentApprovalRequest request = new PaymentApprovalRequest("test2", 150.00, CurrencyCode.USD, "merchantId12", "creditCard", paymentDetails);
 
         String body = objectMapper.writeValueAsString(request);
 
