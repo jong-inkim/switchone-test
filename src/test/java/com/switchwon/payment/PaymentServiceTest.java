@@ -6,7 +6,7 @@ import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.payment.repository.PaymentRepository;
 import com.switchwon.payment.dto.*;
 import com.switchwon.payment.exception.DupliatedMerchantIdException;
-import com.switchwon.payment.repository.WalletRepository;
+import com.switchwon.payment.repository.BalanceRepository;
 import com.switchwon.payment.service.PaymentService;
 import com.switchwon.user.domain.User;
 import com.switchwon.user.repository.UserRepository;
@@ -29,7 +29,7 @@ public class PaymentServiceTest {
     PaymentRepository paymentRepository;
 
     @Autowired
-    WalletRepository walletRepository;
+    BalanceRepository balanceRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -42,16 +42,16 @@ public class PaymentServiceTest {
         User testUser1 = userRepository.save(new User("test1"));
         User testUser2 = userRepository.save(new User("test2"));
         User testUser3 = userRepository.save(new User("test3"));
-        walletRepository.save(new Wallet(testUser1, 150, CurrencyCode.USD));
-        walletRepository.save(new Wallet(testUser2, 100, CurrencyCode.USD));
-        walletRepository.save(new Wallet(testUser3, 170, CurrencyCode.USD));
+        balanceRepository.save(new Balance(testUser1, 150, CurrencyCode.USD));
+        balanceRepository.save(new Balance(testUser2, 100, CurrencyCode.USD));
+        balanceRepository.save(new Balance(testUser3, 170, CurrencyCode.USD));
     }
 
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAll();
         chargePaymentRepository.deleteAll();
-        walletRepository.deleteAll();
+        balanceRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -149,7 +149,7 @@ public class PaymentServiceTest {
         assertThat(payment.getFees()).isEqualTo(4.50);
 
         User user = userRepository.findByUserId(testId).get();
-        assertThat(user.getWallet().getBalance()).isEqualTo(0.00);
+        assertThat(user.getBalance().getBalance()).isEqualTo(0.00);
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.switchwon.payment.service;
 
 import com.switchwon.payment.domain.Payment;
-import com.switchwon.payment.domain.Wallet;
+import com.switchwon.payment.domain.Balance;
 import com.switchwon.payment.dto.PaymentApprovalRequest;
 import com.switchwon.payment.dto.PaymentApprovalResponse;
 import com.switchwon.payment.dto.PaymentEstimateRequest;
@@ -21,13 +21,13 @@ import java.util.Optional;
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final WalletService walletService;
+    private final BalanceService balanceService;
 
     private final UserService userService;
 
-    public PaymentService(PaymentRepository paymentRepository, WalletService walletService, UserService userService) {
+    public PaymentService(PaymentRepository paymentRepository, BalanceService balanceService, UserService userService) {
         this.paymentRepository = paymentRepository;
-        this.walletService = walletService;
+        this.balanceService = balanceService;
         this.userService = userService;
     }
 
@@ -56,15 +56,15 @@ public class PaymentService {
 
         Payment payment = optPayment.get();
 
-        Wallet wallet = findUser.getWallet();
+        Balance balance = findUser.getBalance();
 
-        if (wallet.getBalance() < payment.getTotalAmount()) {
+        if (balance.getBalance() < payment.getTotalAmount()) {
             assert request.paymentDetailRequest() != null;
-            double needAmount = payment.getTotalAmount() - wallet.getBalance();
-            walletService.charge(needAmount, request.userId(), request.paymentDetailRequest());
+            double needAmount = payment.getTotalAmount() - balance.getBalance();
+            balanceService.charge(needAmount, request.userId(), request.paymentDetailRequest());
         }
 
-        walletService.use(payment.getTotalAmount(), request.userId());
+        balanceService.use(payment.getTotalAmount(), request.userId());
         payment.toApproved();
         return PaymentApprovalResponse.from(payment);
     }

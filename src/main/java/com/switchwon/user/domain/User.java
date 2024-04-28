@@ -1,6 +1,6 @@
 package com.switchwon.user.domain;
 
-import com.switchwon.payment.domain.Wallet;
+import com.switchwon.payment.domain.Balance;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,17 +20,17 @@ public class User {
     private String userId;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Wallet wallet;
+    private Balance balance;
 
     public User(String userId) {
         this.userId = userId;
     }
 
-    public Wallet getWallet() {
-        if (wallet == null) {
-            throw new EntityNotFoundException("userBalance가 존재하지 않습니다.");
+    public Balance getBalance() {
+        if (balance == null) {
+            throw new EntityNotFoundException("Balance가 존재하지 않습니다.");
         }
 
-        return this.wallet;
+        return this.balance;
     }
 }

@@ -1,15 +1,15 @@
 package com.switchwon.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.switchwon.payment.domain.Balance;
 import com.switchwon.payment.domain.CurrencyCode;
 import com.switchwon.payment.domain.PaymentMethod;
-import com.switchwon.payment.domain.Wallet;
 import com.switchwon.payment.dto.PaymentApprovalRequest;
 import com.switchwon.payment.dto.PaymentDetailRequest;
 import com.switchwon.payment.dto.PaymentEstimateRequest;
 import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.payment.repository.PaymentRepository;
-import com.switchwon.payment.repository.WalletRepository;
+import com.switchwon.payment.repository.BalanceRepository;
 import com.switchwon.user.domain.User;
 import com.switchwon.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -36,7 +36,7 @@ public class PaymentControllerTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    WalletRepository walletRepository;
+    BalanceRepository balanceRepository;
 
     @Autowired
     PaymentRepository paymentRepository;
@@ -49,7 +49,7 @@ public class PaymentControllerTest {
 
     @AfterEach
     void tearDown() {
-        walletRepository.deleteAll();
+        balanceRepository.deleteAll();
         paymentRepository.deleteAll();
         chargePaymentRepository.deleteAll();
         userRepository.deleteAll();
@@ -58,7 +58,7 @@ public class PaymentControllerTest {
     @Test
     void 잔액_조회_API() throws Exception {
         User testUser = userRepository.save(new User("test1"));
-        walletRepository.save(new Wallet(testUser, 1000.00, CurrencyCode.USD));
+        balanceRepository.save(new Balance(testUser, 1000.00, CurrencyCode.USD));
 
         String userId = "test1";
 
@@ -71,7 +71,7 @@ public class PaymentControllerTest {
     @Test
     void 결제_예상_조회() throws Exception {
         User testUser = userRepository.save(new User("test2"));
-        walletRepository.save(new Wallet(testUser, 1000.00, CurrencyCode.USD));
+        balanceRepository.save(new Balance(testUser, 1000.00, CurrencyCode.USD));
         PaymentEstimateRequest request = new PaymentEstimateRequest(150.00, CurrencyCode.USD, "merchantId12", "test2");
         String body = objectMapper.writeValueAsString(request);
 
