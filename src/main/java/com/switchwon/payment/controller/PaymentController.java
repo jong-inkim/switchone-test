@@ -2,27 +2,26 @@ package com.switchwon.payment.controller;
 
 import com.switchwon.payment.dto.*;
 import com.switchwon.payment.service.PaymentService;
-import com.switchwon.payment.service.UserBalanceService;
+import com.switchwon.payment.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.models.annotations.OpenAPI30;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class PaymentController {
 
-    private final UserBalanceService userBalanceService;
+    private final WalletService walletService;
     private final PaymentService paymentService;
 
-    public PaymentController(UserBalanceService userBalanceService, PaymentService paymentService) {
-        this.userBalanceService = userBalanceService;
+    public PaymentController(WalletService walletService, PaymentService paymentService) {
+        this.walletService = walletService;
         this.paymentService = paymentService;
     }
 
     @Operation(summary = "잔액 조회 API", description = "user의 잔액을 조회합니다.")
     @GetMapping("/api/payment/balance/{userId}")
     public ResponseEntity<BalanceResponse> getBalanceByUserId(@PathVariable("userId") String userId) {
-        BalanceResponse response = userBalanceService.getBalanceByUserId(userId);
+        BalanceResponse response = walletService.getBalanceByUserId(userId);
 
         return ResponseEntity.ok(response);
     }
