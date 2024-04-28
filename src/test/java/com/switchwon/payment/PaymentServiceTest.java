@@ -1,15 +1,12 @@
 package com.switchwon.payment;
 
-import com.switchwon.payment.domain.Payment;
-import com.switchwon.payment.domain.PaymentStatus;
-import com.switchwon.payment.domain.UserBalance;
+import com.switchwon.payment.domain.*;
 import com.switchwon.payment.exception.DoNotMatchedAmountException;
 import com.switchwon.payment.repository.PaymentDetailRepository;
 import com.switchwon.payment.repository.PaymentRepository;
-import com.switchwon.payment.domain.CurrencyCode;
 import com.switchwon.payment.dto.*;
 import com.switchwon.payment.exception.DupliatedMerchantIdException;
-import com.switchwon.payment.repository.UserBalanceRepository;
+import com.switchwon.payment.repository.WalletRepository;
 import com.switchwon.payment.service.PaymentService;
 import com.switchwon.user.domain.User;
 import com.switchwon.user.repository.UserRepository;
@@ -32,7 +29,7 @@ public class PaymentServiceTest {
     PaymentRepository paymentRepository;
 
     @Autowired
-    UserBalanceRepository userBalanceRepository;
+    WalletRepository walletRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -45,16 +42,16 @@ public class PaymentServiceTest {
         User testUser1 = userRepository.save(new User("test1"));
         User testUser2 = userRepository.save(new User("test2"));
         User testUser3 = userRepository.save(new User("test3"));
-        userBalanceRepository.save(new UserBalance(testUser1, 150, CurrencyCode.USD));
-        userBalanceRepository.save(new UserBalance(testUser2, 100, CurrencyCode.USD));
-        userBalanceRepository.save(new UserBalance(testUser3, 170, CurrencyCode.USD));
+        walletRepository.save(new Wallet(testUser1, 150, CurrencyCode.USD));
+        walletRepository.save(new Wallet(testUser2, 100, CurrencyCode.USD));
+        walletRepository.save(new Wallet(testUser3, 170, CurrencyCode.USD));
     }
 
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAll();
         paymentDetailRepository.deleteAll();
-        userBalanceRepository.deleteAll();
+        walletRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -81,9 +78,9 @@ public class PaymentServiceTest {
 
     @Test
     void 이미_존재하는_상점아이디가_있을경우() {
-        paymentService.estimate(new PaymentEstimateRequest(150, CurrencyCode.USD, "merchantId2", "test2"));
+        paymentService.estimate(new PaymentEstimateRequest(150.00, CurrencyCode.USD, "merchantId2", "test2"));
 
-        assertThatThrownBy(() -> paymentService.estimate(new PaymentEstimateRequest(150, CurrencyCode.USD, "merchantId2", "test2")))
+        assertThatThrownBy(() -> paymentService.estimate(new PaymentEstimateRequest(150.00, CurrencyCode.USD, "merchantId2", "test2")))
                 .isInstanceOf(DupliatedMerchantIdException.class);
     }
 
@@ -93,7 +90,7 @@ public class PaymentServiceTest {
         String merchantId = "merchantId22";
         double amount = 150.00;
         CurrencyCode currency = CurrencyCode.USD;
-        String creditCard = "creditCard";
+        PaymentMethod paymentMethod = PaymentMethod.creditCard;
 
         User testUser = getUser(testId);
         paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD, testUser));
@@ -101,7 +98,7 @@ public class PaymentServiceTest {
         PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
 
 
-        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
+        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, paymentMethod, paymentDetailRequest);
 
         PaymentApprovalResponse response = paymentService.approval(request);
 
@@ -124,18 +121,18 @@ public class PaymentServiceTest {
 
     @Test
     void 결제_승인_요청_balance가_적은경우() {
-        String testId = "test1";
+        String testId = "test2";
         String merchantId = "merchantId11";
         double amount = 150.00;
         CurrencyCode currency = CurrencyCode.USD;
-        String creditCard = "creditCard";
+        PaymentMethod paymentMethod = PaymentMethod.creditCard;
 
         User testUser = getUser(testId);
         paymentRepository.save(Payment.of("merchantId11", 150.00, CurrencyCode.USD, testUser));
 
         PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
 
-        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
+        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, paymentMethod, paymentDetailRequest);
 
         PaymentApprovalResponse response = paymentService.approval(request);
 
@@ -150,6 +147,9 @@ public class PaymentServiceTest {
         assertThat(payment.getTotalAmount()).isEqualTo(154.50);
         assertThat(payment.getCurrency()).isEqualTo(CurrencyCode.USD);
         assertThat(payment.getFees()).isEqualTo(4.50);
+
+        User user = userRepository.findByUserId(testId).get();
+        assertThat(user.getWallet().getBalance()).isEqualTo(0.00);
     }
 
     @Test
@@ -158,14 +158,14 @@ public class PaymentServiceTest {
         String merchantId = "merchantId22";
         double amount = 100.00;
         CurrencyCode currency = CurrencyCode.USD;
-        String creditCard = "creditCard";
+        PaymentMethod paymentMethod = PaymentMethod.creditCard;
 
         User testUser = getUser(testId);
         paymentRepository.save(Payment.of("merchantId22", 150.00, CurrencyCode.USD, testUser));
 
         PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-5678-1234-1234", "12/24", "123");
 
-        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, creditCard, paymentDetailRequest);
+        PaymentApprovalRequest request = new PaymentApprovalRequest(testId, amount, currency, merchantId, paymentMethod, paymentDetailRequest);
 
         assertThatThrownBy(() -> paymentService.approval(request))
                 .isInstanceOf(DoNotMatchedAmountException.class);
