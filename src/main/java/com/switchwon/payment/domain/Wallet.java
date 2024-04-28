@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserBalance {
+public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +22,7 @@ public class UserBalance {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public UserBalance(User user, double balance, CurrencyCode currency) {
+    public Wallet(User user, double balance, CurrencyCode currency) {
         this.user = user;
         this.balance = balance;
         this.currency = currency;
