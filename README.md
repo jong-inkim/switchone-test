@@ -20,3 +20,6 @@
 
 ### docs
 - http://localhost:8080/swagger-ui/index.html
+
+### 테스트 데이터
+- userId : test_user1
