@@ -7,7 +7,7 @@ import com.switchwon.payment.domain.Wallet;
 import com.switchwon.payment.dto.PaymentApprovalRequest;
 import com.switchwon.payment.dto.PaymentDetailRequest;
 import com.switchwon.payment.dto.PaymentEstimateRequest;
-import com.switchwon.payment.repository.PaymentDetailRepository;
+import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.payment.repository.PaymentRepository;
 import com.switchwon.payment.repository.WalletRepository;
 import com.switchwon.user.domain.User;
@@ -42,7 +42,7 @@ public class PaymentControllerTest {
     PaymentRepository paymentRepository;
 
     @Autowired
-    PaymentDetailRepository paymentDetailRepository;
+    ChargePaymentRepository chargePaymentRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -51,7 +51,7 @@ public class PaymentControllerTest {
     void tearDown() {
         walletRepository.deleteAll();
         paymentRepository.deleteAll();
-        paymentDetailRepository.deleteAll();
+        chargePaymentRepository.deleteAll();
         userRepository.deleteAll();
     }
 

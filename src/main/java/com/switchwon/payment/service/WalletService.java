@@ -1,10 +1,10 @@
 package com.switchwon.payment.service;
 
-import com.switchwon.payment.domain.PaymentDetail;
+import com.switchwon.payment.domain.ChargePayment;
 import com.switchwon.payment.domain.Wallet;
 import com.switchwon.payment.dto.BalanceResponse;
 import com.switchwon.payment.dto.PaymentDetailRequest;
-import com.switchwon.payment.repository.PaymentDetailRepository;
+import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.user.domain.User;
 import com.switchwon.user.service.UserService;
 import org.springframework.stereotype.Service;
@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WalletService {
-    private final PaymentDetailRepository paymentDetailRepository;
+    private final ChargePaymentRepository chargePaymentRepository;
     private final UserService userService;
 
 
-    public WalletService(PaymentDetailRepository paymentDetailRepository, UserService userService) {
-        this.paymentDetailRepository = paymentDetailRepository;
+    public WalletService(ChargePaymentRepository chargePaymentRepository, UserService userService) {
+        this.chargePaymentRepository = chargePaymentRepository;
         this.userService = userService;
     }
 
@@ -33,8 +33,8 @@ public class WalletService {
         Wallet wallet = findUser.getWallet();
 
         wallet.charge(chargeAmount);
-        PaymentDetail paymentDetail = PaymentDetail.of(chargeAmount, paymentDetailRequest, findUser);
-        paymentDetailRepository.save(paymentDetail);
+        ChargePayment chargePayment = ChargePayment.of(chargeAmount, paymentDetailRequest, findUser);
+        chargePaymentRepository.save(chargePayment);
     }
 
     @Transactional

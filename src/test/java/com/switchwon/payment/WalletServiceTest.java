@@ -4,7 +4,7 @@ import com.switchwon.payment.domain.CurrencyCode;
 import com.switchwon.payment.domain.Wallet;
 import com.switchwon.payment.dto.BalanceResponse;
 import com.switchwon.payment.dto.PaymentDetailRequest;
-import com.switchwon.payment.repository.PaymentDetailRepository;
+import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.payment.repository.WalletRepository;
 import com.switchwon.payment.service.WalletService;
 import com.switchwon.user.domain.User;
@@ -29,7 +29,7 @@ public class WalletServiceTest {
     WalletRepository walletRepository;
 
     @Autowired
-    PaymentDetailRepository paymentDetailRepository;
+    ChargePaymentRepository chargePaymentRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -44,7 +44,7 @@ public class WalletServiceTest {
     @AfterEach
     void tearDown() {
         walletRepository.deleteAll();
-        paymentDetailRepository.deleteAll();
+        chargePaymentRepository.deleteAll();
         userRepository.deleteAll();
     }
 

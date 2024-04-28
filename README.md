@@ -16,7 +16,7 @@
   - 결제 승인을 요청 하는 API
   - estimate API 송신시 만들어놓은 데이터를 기반으로 해당 API와 금액정보나, 상점아이디 호출 userId 정보가 다르면 에러를 노출함
   - 기존 wallet에 있는 잔액과 결제금액+수수료의 금액을 비교하여, 추가 충전이 필요한 경우 필요한 금액만큼 추가 충전을 진행하고, 결제금액을 wallet에서 차감하도록 했습니다.
-  - 최종 결제 내용은 Payment에 저장하고, 금액 충전 내용은 PaymentDetail에 저장
+  - 최종 결제 내용은 Payment에 저장하고, 금액 충전 내용은 ChargePayment에 저장
 
 ### docs
 - http://localhost:8080/swagger-ui/index.html

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentDetail {
+public class ChargePayment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class PaymentDetail {
     private String expiryDate;
     private String cvv;
 
-    private PaymentDetail(PaymentMethod paymentMethod, double amount, String cardNumber, String expiryDate, String cvv, User user) {
+    private ChargePayment(PaymentMethod paymentMethod, double amount, String cardNumber, String expiryDate, String cvv, User user) {
         this.paymentMethod = paymentMethod;
         this.amount = amount;
         this.cardNumber = cardNumber;
@@ -38,7 +38,7 @@ public class PaymentDetail {
         this.user = user;
     }
 
-    public static PaymentDetail of(double amount, PaymentDetailRequest paymentDetailRequest, User user) {
-        return new PaymentDetail(PaymentMethod.creditCard, amount, paymentDetailRequest.cardNumber(), paymentDetailRequest.expiryDate(), paymentDetailRequest.cvv(), user);
+    public static ChargePayment of(double amount, PaymentDetailRequest paymentDetailRequest, User user) {
+        return new ChargePayment(PaymentMethod.creditCard, amount, paymentDetailRequest.cardNumber(), paymentDetailRequest.expiryDate(), paymentDetailRequest.cvv(), user);
     }
 }

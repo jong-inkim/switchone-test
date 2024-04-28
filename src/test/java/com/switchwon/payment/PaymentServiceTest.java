@@ -2,7 +2,7 @@ package com.switchwon.payment;
 
 import com.switchwon.payment.domain.*;
 import com.switchwon.payment.exception.DoNotMatchedAmountException;
-import com.switchwon.payment.repository.PaymentDetailRepository;
+import com.switchwon.payment.repository.ChargePaymentRepository;
 import com.switchwon.payment.repository.PaymentRepository;
 import com.switchwon.payment.dto.*;
 import com.switchwon.payment.exception.DupliatedMerchantIdException;
@@ -35,7 +35,7 @@ public class PaymentServiceTest {
     UserRepository userRepository;
 
     @Autowired
-    private PaymentDetailRepository paymentDetailRepository;
+    private ChargePaymentRepository chargePaymentRepository;
 
     @BeforeEach
     void setUp() {
@@ -50,7 +50,7 @@ public class PaymentServiceTest {
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAll();
-        paymentDetailRepository.deleteAll();
+        chargePaymentRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();
     }
