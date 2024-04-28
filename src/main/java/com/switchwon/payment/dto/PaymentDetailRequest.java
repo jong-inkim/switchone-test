@@ -4,8 +4,8 @@ import org.springframework.util.Assert;
 
 public record PaymentDetailRequest(String cardNumber, String expiryDate, String cvv) {
     public PaymentDetailRequest {
-        Assert.hasText(cardNumber, "CardNumber must not be null");
-        Assert.hasText(expiryDate, "ExpiryDate must not be null");
-        Assert.hasText(cvv, "Cvv must not be null");
+        Assert.hasText(cardNumber, "카드번호는 필수 값입니다.");
+        Assert.hasText(expiryDate, "카드 만료일자는 필수 값입니다.");
+        Assert.hasText(cvv, "카드 cvv는 필수 입니다.");
     }
 }
