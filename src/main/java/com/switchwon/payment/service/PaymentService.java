@@ -61,7 +61,7 @@ public class PaymentService {
         if (balance.getBalance() < payment.getTotalAmount()) {
             assert request.paymentDetailRequest() != null;
             double needAmount = payment.getTotalAmount() - balance.getBalance();
-            balanceService.charge(needAmount, request.userId(), request.paymentDetailRequest());
+            balanceService.charge(needAmount, request.userId(), request.paymentDetailRequest(), request.currencyCode());
         }
 
         balanceService.use(payment.getTotalAmount(), request.userId());

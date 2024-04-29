@@ -2,6 +2,7 @@ package com.switchwon.payment.service;
 
 import com.switchwon.payment.domain.Balance;
 import com.switchwon.payment.domain.ChargePayment;
+import com.switchwon.payment.domain.CurrencyCode;
 import com.switchwon.payment.dto.BalanceResponse;
 import com.switchwon.payment.dto.PaymentDetailRequest;
 import com.switchwon.payment.repository.ChargePaymentRepository;
@@ -27,13 +28,13 @@ public class BalanceService {
     }
 
     @Transactional
-    public void charge(double chargeAmount, String userId, PaymentDetailRequest paymentDetailRequest) {
+    public void charge(double chargeAmount, String userId, PaymentDetailRequest paymentDetailRequest, CurrencyCode currency) {
         User findUser = userService.findByUserId(userId);
 
         Balance balance = findUser.getBalance();
 
         balance.charge(chargeAmount);
-        ChargePayment chargePayment = ChargePayment.of(chargeAmount, paymentDetailRequest, findUser);
+        ChargePayment chargePayment = ChargePayment.of(chargeAmount, paymentDetailRequest, findUser, currency);
         chargePaymentRepository.save(chargePayment);
     }
 

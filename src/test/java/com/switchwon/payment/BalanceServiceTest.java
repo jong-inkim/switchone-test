@@ -72,11 +72,12 @@ public class BalanceServiceTest {
     @Test
     void 잔액_충전() {
         String userId = "test1";
+        CurrencyCode currencyCode = CurrencyCode.USD;
         balanceRepository.save(new Balance(testUser, 1000.00, CurrencyCode.USD));
 
         double chargeAmount = 500.00;
         PaymentDetailRequest paymentDetailRequest = new PaymentDetailRequest("1234-1234-1234-1234", "12/24", "123");
-        balanceService.charge(chargeAmount, userId, paymentDetailRequest);
+        balanceService.charge(chargeAmount, userId, paymentDetailRequest, currencyCode);
 
         Balance balance = balanceRepository.findByUserId(testUser.getId()).get();
         assertThat(balance.getBalance()).isEqualTo(1500.00);
